@@ -29,6 +29,12 @@ const routes = [
     name: 'Backtest',
     component: () => import('../views/Backtest.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/backtest2000',
+    name: 'Backtest2000',
+    component: () => import('../views/Backtest2000.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

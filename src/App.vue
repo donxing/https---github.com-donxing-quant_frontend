@@ -1,11 +1,12 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/stocks" v-if="isAuthenticated">Stocks</router-link> |
-      <router-link to="/backtest" v-if="isAuthenticated">Backtest</router-link> |
-      <router-link to="/login" v-if="!isAuthenticated">Login</router-link> |
-      <router-link to="/register" v-if="!isAuthenticated">Register</router-link> |
+    <nav class="navbar">
+      <router-link to="/">Home</router-link>
+      <router-link to="/stocks" v-if="isAuthenticated">Stocks</router-link>
+      <router-link to="/backtest" v-if="isAuthenticated">Backtest</router-link>
+      <router-link to="/backtest2000" v-if="isAuthenticated">CSI2000 Backtest</router-link>
+      <router-link to="/login" v-if="!isAuthenticated">Login</router-link>
+      <router-link to="/register" v-if="!isAuthenticated">Register</router-link>
       <button v-if="isAuthenticated" @click="logout">Logout</button>
     </nav>
     <router-view />
@@ -19,50 +20,53 @@ export default {
   name: 'App',
   computed: {
     isAuthenticated() {
-      return useAuthStore().isAuthenticated
+      const authStore = useAuthStore()
+      return authStore.isAuthenticated
     }
   },
   methods: {
-    logout() {
+    async logout() {
       const authStore = useAuthStore()
-      authStore.logout()
-      this.$router.push('/login')
+      try {
+        await authStore.logout()
+        this.$router.push('/login')
+      } catch (err) {
+        console.error('Logout failed:', err)
+      }
     }
   }
 }
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style scoped>
+.navbar {
+  background-color: #f8f9fa;
+  padding: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 15px;
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-  margin: 0 10px;
-}
-
-nav a.router-link-exact-active {
+.navbar a {
   color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-button {
-  background: none;
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.navbar button {
+  background-color: #dc3545;
+  color: white;
   border: none;
-  color: #007bff;
-  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
-button:hover {
-  text-decoration: underline;
+.navbar button:hover {
+  background-color: #c82333;
 }
 </style>
