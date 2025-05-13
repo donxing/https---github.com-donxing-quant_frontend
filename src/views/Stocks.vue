@@ -31,6 +31,8 @@
         <label><input type="checkbox" v-model="signals" value="TRENDSELL" checked> 趋势卖顶</label>
         <label><input type="checkbox" v-model="signals" value="STARK" checked> 希望之星</label>
         <label><input type="checkbox" v-model="signals" value="POTENTIALBUY" checked> 准备上</label>
+        <label><input type="checkbox" v-model="signals" value="ENTRYBUY" checked> 出手</label>
+        <label><input type="checkbox" v-model="signals" value="STRONGBUY" checked> 强势</label>
         <label><input type="checkbox" v-model="signals" value="STAGESELL" checked> 阶段卖出</label>
         <label><input type="checkbox" v-model="signals" value="CLEANSELL" checked> 清仓卖出</label>
       </div>
@@ -55,7 +57,7 @@ export default {
     return {
       stockCode: '',
       dateRange: null,
-      signals: ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'TRENDSELL', 'STARK', 'POTENTIALBUY', 'STAGESELL', 'CLEANSELL'],
+      signals: ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'TRENDSELL', 'STARK', 'POTENTIALBUY', 'ENTRYBUY','STRONGBUY','STAGESELL', 'CLEANSELL'],
       chart: null,
       loading: false,
       error: '',
@@ -158,7 +160,7 @@ export default {
         const dateIndex = dates.indexOf(item.date)
         this.signals.forEach(signal => {
           if (item[signal]) {
-            const isBuySignal = ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'STARK', 'POTENTIALBUY'].includes(signal)
+            const isBuySignal = ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'STARK', 'POTENTIALBUY','ENTRYBUY','STRONGBUY'].includes(signal)
             const yValue = isBuySignal ? parseFloat(item.low) : parseFloat(item.high)
 
             markers.push({
