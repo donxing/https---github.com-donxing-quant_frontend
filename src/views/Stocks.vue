@@ -57,11 +57,12 @@ export default {
     return {
       stockCode: '',
       dateRange: null,
-      signals: ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'TRENDSELL', 'STARK', 'POTENTIALBUY', 'ENTRYBUY','STRONGBUY','STAGESELL', 'CLEANSELL'],
+      signals: ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'TRENDSELL', 'STARK', 'POTENTIALBUY', 'ENTRYBUY', 'STRONGBUY', 'STAGESELL', 'CLEANSELL'],
       chart: null,
       loading: false,
       error: '',
-      locale: 'zh-CN'
+      locale: 'zh-CN',
+      buyScoreThreshold: 5  // Buy when buy_score >= 5
     }
   },
   mounted() {
@@ -150,17 +151,27 @@ export default {
       const dates = stockData.map(item => item.date)
       const volumes = stockData.map(item => parseFloat(item.volume))
 
-      const volumeColors = stockData.map((item, index) => {
-        if (index === 0) return '#aaa'
-        return parseFloat(item.close) > parseFloat(stockData[index - 1].close) ? '#ec0000' : '#00da3c'
+      // Simulate trading strategy based on buy_score
+      let position = 0  // 0 = holding cash, 1 = holding shares
+      const holdingStatus = stockData.map(item => {
+        const buyScore = parseFloat(item.buy_score)
+        if (buyScore >= this.buyScoreThreshold && position === 0) {
+          position = 1  // Buy: Start holding shares
+        } else if (buyScore === 0 && position === 1) {
+          position = 0  // Sell: Back to holding cash
+        }
+        return position
       })
+
+      // Color volume bars: red when holding shares, green when holding cash
+      const volumeColors = holdingStatus.map(status => status === 1 ? '#ec0000' : '#00da3c')
 
       const markers = []
       stockData.forEach(item => {
         const dateIndex = dates.indexOf(item.date)
         this.signals.forEach(signal => {
           if (item[signal]) {
-            const isBuySignal = ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'STARK', 'POTENTIALBUY','ENTRYBUY','STRONGBUY'].includes(signal)
+            const isBuySignal = ['TRENDBUY', 'BOTTOMBUY', 'BOTTOMUPBUY', 'STARK', 'POTENTIALBUY', 'ENTRYBUY', 'STRONGBUY'].includes(signal)
             const yValue = isBuySignal ? parseFloat(item.low) : parseFloat(item.high)
 
             markers.push({
@@ -191,6 +202,8 @@ export default {
             html += `最高: ${data.high}<br>`
             html += `最低: ${data.low}<br>`
             html += `成交量: ${data.volume}<br>`
+            html += `Buy Score: ${data.buy_score}<br>`
+            html += `持仓状态: ${holdingStatus[params[0].dataIndex] === 1 ? '持股' : '持币'}<br>`
 
             const activeSignals = this.signals.filter(signal => data[signal])
             if (activeSignals.length > 0) {
